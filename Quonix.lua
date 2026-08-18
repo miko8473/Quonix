@@ -17,7 +17,7 @@ task.spawn(function()
     end
 end)
 
--- Globale Combat- & Farming-Variablen
+-- Global Combat & Farming Variables
 local autoHitEnabled = false
 local aimbotEnabled = false
 local antiKnockbackEnabled = false
@@ -29,14 +29,14 @@ local conveyorPosition = nil
 local nightSaveZonePosition = nil
 local savedManualPosition = nil
 
--- Haupt-ScreenGui direkt im PlayerGui erzwingen
+-- Force ScreenGui into PlayerGui
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "QuonixGui"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = player:WaitForChild("PlayerGui")
 
 --------------------------------------------------------------------------------
--- HAUPTMENÜ
+-- MAIN HUB
 --------------------------------------------------------------------------------
 local MainHub = Instance.new("Frame")
 MainHub.Size = UDim2.new(0, 340, 0, 50)
@@ -64,12 +64,12 @@ HubTitle.Font = Enum.Font.GothamBold
 HubTitle.TextXAlignment = Enum.TextXAlignment.Left
 
 local ClockLabel = Instance.new("TextLabel", TopBar)
-ClockLabel.Size = UDim2.new(0, 130, 1, 0)
+ClockLabel.Size = UDim2.new(0, 140, 1, 0)
 ClockLabel.Position = UDim2.new(0.05, 65, 0, 0)
 ClockLabel.BackgroundTransparency = 1
-ClockLabel.Text = "[Lade...]"
+ClockLabel.Text = "[Scanning...]"
 ClockLabel.TextColor3 = Color3.fromRGB(180, 120, 255)
-ClockLabel.TextSize = 14
+ClockLabel.TextSize = 13
 ClockLabel.Font = Enum.Font.GothamBold
 ClockLabel.TextXAlignment = Enum.TextXAlignment.Left
 
@@ -109,7 +109,7 @@ end
 UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(updateMainHubSize)
 
 --------------------------------------------------------------------------------
--- 1. SEKTION: COMBAT & AIMBOT
+-- 1. SECTION: COMBAT & AIMBOT
 --------------------------------------------------------------------------------
 local CombatContainer = Instance.new("Frame", ContentHolder)
 CombatContainer.Size = UDim2.new(1, 0, 0, 150)
@@ -137,7 +137,7 @@ AutoHitBtn.Size = UDim2.new(0.9, 0, 0, 32)
 AutoHitBtn.Position = UDim2.new(0.05, 0, 0, 0)
 AutoHitBtn.BackgroundColor3 = Color3.fromRGB(120, 50, 200)
 AutoHitBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-AutoHitBtn.Text = "Auto Schlag: OFF"
+AutoHitBtn.Text = "Auto Hit: OFF"
 AutoHitBtn.TextSize = 13
 AutoHitBtn.Font = Enum.Font.GothamSemibold
 Instance.new("UICorner", AutoHitBtn).CornerRadius = UDim.new(0, 8)
@@ -175,7 +175,7 @@ CombatHeader.MouseButton1Click:Connect(function()
 end)
 
 --------------------------------------------------------------------------------
--- 2. SEKTION: MANUELLER TP BEREICH
+-- 2. SECTION: MANUAL TP
 --------------------------------------------------------------------------------
 local TpContainer = Instance.new("Frame", ContentHolder)
 TpContainer.Size = UDim2.new(1, 0, 0, 75)
@@ -186,7 +186,7 @@ local TpHeader = Instance.new("TextButton", TpContainer)
 TpHeader.Size = UDim2.new(0.9, 0, 0, 35)
 TpHeader.Position = UDim2.new(0.05, 0, 0, 0)
 TpHeader.BackgroundTransparency = 1
-TpHeader.Text = "--- Manueller TP [v] ---"
+TpHeader.Text = "--- Manual TP [v] ---"
 TpHeader.TextColor3 = Color3.fromRGB(180, 120, 255)
 TpHeader.TextSize = 16
 TpHeader.Font = Enum.Font.GothamBold
@@ -203,7 +203,7 @@ SavePosBtn.Size = UDim2.new(0.42, 0, 0, 32)
 SavePosBtn.Position = UDim2.new(0.05, 0, 0, 0)
 SavePosBtn.BackgroundColor3 = Color3.fromRGB(50, 40, 75)
 SavePosBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-SavePosBtn.Text = "Pos Speichern"
+SavePosBtn.Text = "Save Position"
 SavePosBtn.TextSize = 13
 SavePosBtn.Font = Enum.Font.GothamSemibold
 Instance.new("UICorner", SavePosBtn).CornerRadius = UDim.new(0, 8)
@@ -213,7 +213,7 @@ WalkBtn.Size = UDim2.new(0.42, 0, 0, 32)
 WalkBtn.Position = UDim2.new(0.53, 0, 0, 0)
 WalkBtn.BackgroundColor3 = Color3.fromRGB(120, 50, 200)
 WalkBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-WalkBtn.Text = "Gehe zu Pos"
+WalkBtn.Text = "Go to Position"
 WalkBtn.TextSize = 13
 WalkBtn.Font = Enum.Font.GothamBold
 Instance.new("UICorner", WalkBtn).CornerRadius = UDim.new(0, 8)
@@ -221,17 +221,17 @@ Instance.new("UICorner", WalkBtn).CornerRadius = UDim.new(0, 8)
 TpHeader.MouseButton1Click:Connect(function()
     TpContent.Visible = not TpContent.Visible
     if TpContent.Visible then
-        TpHeader.Text = "--- Manueller TP [v] ---"
+        TpHeader.Text = "--- Manual TP [v] ---"
         TpContainer.Size = UDim2.new(1, 0, 0, 75)
     else
-        TpHeader.Text = "--- Manueller TP [^] ---"
+        TpHeader.Text = "--- Manual TP [^] ---"
         TpContainer.Size = UDim2.new(1, 0, 0, 35)
     end
     updateMainHubSize()
 end)
 
 --------------------------------------------------------------------------------
--- 3. SEKTION: AUTO FARMING LOGIK
+-- 3. SECTION: AUTO FARMING LOGIC
 --------------------------------------------------------------------------------
 local FarmContainer = Instance.new("Frame", ContentHolder)
 FarmContainer.Size = UDim2.new(1, 0, 0, 230)
@@ -242,7 +242,7 @@ local FarmHeader = Instance.new("TextButton", FarmContainer)
 FarmHeader.Size = UDim2.new(0.9, 0, 0, 35)
 FarmHeader.Position = UDim2.new(0.05, 0, 0, 0)
 FarmHeader.BackgroundTransparency = 1
-FarmHeader.Text = "--- Auto Farming Logik [v] ---"
+FarmHeader.Text = "--- Auto Farming Logic [v] ---"
 FarmHeader.TextColor3 = Color3.fromRGB(180, 120, 255)
 FarmHeader.TextSize = 16
 FarmHeader.Font = Enum.Font.GothamBold
@@ -269,7 +269,7 @@ SaveZoneBtn.Size = UDim2.new(0.9, 0, 0, 32)
 SaveZoneBtn.Position = UDim2.new(0.05, 0, 0, 40)
 SaveZoneBtn.BackgroundColor3 = Color3.fromRGB(50, 40, 75)
 SaveZoneBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-SaveZoneBtn.Text = "Save Zone Save"
+SaveZoneBtn.Text = "Save Safe Zone"
 SaveZoneBtn.TextSize = 13
 SaveZoneBtn.Font = Enum.Font.GothamSemibold
 Instance.new("UICorner", SaveZoneBtn).CornerRadius = UDim.new(0, 8)
@@ -279,7 +279,7 @@ SaveConveyorBtn.Size = UDim2.new(0.9, 0, 0, 32)
 SaveConveyorBtn.Position = UDim2.new(0.05, 0, 0, 76)
 SaveConveyorBtn.BackgroundColor3 = Color3.fromRGB(50, 40, 75)
 SaveConveyorBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-SaveConveyorBtn.Text = "Laufband Save"
+SaveConveyorBtn.Text = "Save Conveyor"
 SaveConveyorBtn.TextSize = 13
 SaveConveyorBtn.Font = Enum.Font.GothamSemibold
 Instance.new("UICorner", SaveConveyorBtn).CornerRadius = UDim.new(0, 8)
@@ -289,7 +289,7 @@ SaveNightZoneBtn.Size = UDim2.new(0.9, 0, 0, 32)
 SaveNightZoneBtn.Position = UDim2.new(0.05, 0, 0, 112)
 SaveNightZoneBtn.BackgroundColor3 = Color3.fromRGB(50, 40, 75)
 SaveNightZoneBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-SaveNightZoneBtn.Text = "Night Safe Zone Save"
+SaveNightZoneBtn.Text = "Save Night Zone"
 SaveNightZoneBtn.TextSize = 13
 SaveNightZoneBtn.Font = Enum.Font.GothamSemibold
 Instance.new("UICorner", SaveNightZoneBtn).CornerRadius = UDim.new(0, 8)
@@ -307,10 +307,10 @@ Instance.new("UICorner", AutoEggBtn).CornerRadius = UDim.new(0, 8)
 FarmHeader.MouseButton1Click:Connect(function()
     FarmContent.Visible = not FarmContent.Visible
     if FarmContent.Visible then
-        FarmHeader.Text = "--- Auto Farming Logik [v] ---"
+        FarmHeader.Text = "--- Auto Farming Logic [v] ---"
         FarmContainer.Size = UDim2.new(1, 0, 0, 230)
     else
-        FarmHeader.Text = "--- Auto Farming Logik [^] ---"
+        FarmHeader.Text = "--- Auto Farming Logic [^] ---"
         FarmContainer.Size = UDim2.new(1, 0, 0, 35)
     end
     updateMainHubSize()
@@ -320,10 +320,10 @@ AutoHitBtn.MouseButton1Click:Connect(function()
     autoHitEnabled = not autoHitEnabled
     if autoHitEnabled then
         AutoHitBtn.BackgroundColor3 = Color3.fromRGB(40, 120, 200)
-        AutoHitBtn.Text = "Auto Schlag: ON"
+        AutoHitBtn.Text = "Auto Hit: ON"
     else
         AutoHitBtn.BackgroundColor3 = Color3.fromRGB(120, 50, 200)
-        AutoHitBtn.Text = "Auto Schlag: OFF"
+        AutoHitBtn.Text = "Auto Hit: OFF"
     end
 end)
 
@@ -354,9 +354,9 @@ SavePosBtn.MouseButton1Click:Connect(function()
         local char = player.Character
         if char and char:FindFirstChild("HumanoidRootPart") then
             savedManualPosition = char.HumanoidRootPart.Position
-            SavePosBtn.Text = "Gespeichert!"
+            SavePosBtn.Text = "Saved!"
             task.wait(1)
-            SavePosBtn.Text = "Pos Speichern"
+            SavePosBtn.Text = "Save Position"
         end
     end)
 end)
@@ -377,7 +377,7 @@ SaveZoneBtn.MouseButton1Click:Connect(function()
         if char and char:FindFirstChild("HumanoidRootPart") then
             saveZonePosition = char.HumanoidRootPart.Position
             SaveZoneBtn.BackgroundColor3 = Color3.fromRGB(40, 120, 200)
-            SaveZoneBtn.Text = "Save Zone: GESPEICHERT"
+            SaveZoneBtn.Text = "Safe Zone: SAVED"
         end
     end)
 end)
@@ -388,7 +388,7 @@ SaveConveyorBtn.MouseButton1Click:Connect(function()
         if char and char:FindFirstChild("HumanoidRootPart") then
             conveyorPosition = char.HumanoidRootPart.Position
             SaveConveyorBtn.BackgroundColor3 = Color3.fromRGB(40, 120, 200)
-            SaveConveyorBtn.Text = "Laufband: GESPEICHERT"
+            SaveConveyorBtn.Text = "Conveyor: SAVED"
         end
     end)
 end)
@@ -399,7 +399,7 @@ SaveNightZoneBtn.MouseButton1Click:Connect(function()
         if char and char:FindFirstChild("HumanoidRootPart") then
             nightSaveZonePosition = char.HumanoidRootPart.Position
             SaveNightZoneBtn.BackgroundColor3 = Color3.fromRGB(40, 120, 200)
-            SaveNightZoneBtn.Text = "Night Safe Zone: GESPEICHERT"
+            SaveNightZoneBtn.Text = "Night Safe Zone: SAVED"
         end
     end)
 end)
@@ -434,12 +434,12 @@ StartStopBtn.MouseButton1Click:Connect(function()
 
             autoHitEnabled = true
             AutoHitBtn.BackgroundColor3 = Color3.fromRGB(40, 120, 200)
-            AutoHitBtn.Text = "Auto Schlag: ON"
+            AutoHitBtn.Text = "Auto Hit: ON"
 
             StartStopBtn.BackgroundColor3 = Color3.fromRGB(180, 50, 50)
             StartStopBtn.Text = "Stop"
         else
-            StartStopBtn.Text = "Erst alle 3 Pos & ON schalten!"
+            StartStopBtn.Text = "Set all 3 positions & enable first!"
             task.wait(1.8)
             StartStopBtn.Text = "Start Farming"
         end
@@ -447,44 +447,38 @@ StartStopBtn.MouseButton1Click:Connect(function()
 end)
 
 --------------------------------------------------------------------------------
--- VERBESSERTE TIMER- & NACHT-ERKENNUNG (Universell für jedes Spiel)
+-- GAME COUNTDOWN & NIGHT CHECK
 --------------------------------------------------------------------------------
-local function getGameTimeString()
-    local foundTime = nil
+local function getGameCountdownString()
+    local foundText = nil
     pcall(function()
         for _, gui in ipairs(player.PlayerGui:GetChildren()) do
             if gui ~= ScreenGui then
                 for _, descendant in ipairs(gui:GetDescendants()) do
                     if descendant:IsA("TextLabel") or descendant:IsA("TextButton") then
                         local text = descendant.Text or ""
-                        local match = string.match(text, "(%d+:%d%d)")
-                        if match then
-                            foundTime = match
+                        if string.find(text, "m") and string.find(text, "s") then
+                            foundText = text
                             break
                         end
                     end
                 end
             end
-            if foundTime then break end
+            if foundText then break end
         end
     end)
-    return foundTime
+    return foundText
 end
 
 local function checkIsNight()
     local isNight = false
     pcall(function()
-        local clockTime = Lighting.ClockTime
-        if clockTime >= 18 or clockTime < 6 then
-            isNight = true
-        end
-
         for _, gui in ipairs(player.PlayerGui:GetChildren()) do
             if gui ~= ScreenGui then
                 for _, descendant in ipairs(gui:GetDescendants()) do
                     if descendant:IsA("TextLabel") or descendant:IsA("TextButton") then
                         local textLower = string.lower(descendant.Text or "")
-                        if string.find(textLower, "🌙") or string.find(textLower, "mond") or string.find(textLower, "moon") or string.find(textLower, "nacht") or string.find(textLower, "night") then
+                        if string.find(textLower, "🌙") or string.find(textLower, "mond") or string.find(textLower, "moon") or string.find(textLower, "night") then
                             isNight = true
                             break
                         end
@@ -499,18 +493,18 @@ end
 
 task.spawn(function()
     while true do
-        task.wait(0.5)
+        task.wait(0.4)
         pcall(function()
-            local timeStr = getGameTimeString()
+            local countdownStr = getGameCountdownString()
             local nightActive = checkIsNight()
 
-            if timeStr then
-                ClockLabel.Text = "[" .. timeStr .. "]"
+            if countdownStr then
+                ClockLabel.Text = "[" .. countdownStr .. "]"
             else
                 if nightActive then
-                    ClockLabel.Text = "[NACHT 🌙]"
+                    ClockLabel.Text = "[NIGHT 🌙]"
                 else
-                    ClockLabel.Text = "[TAG ☀️]"
+                    ClockLabel.Text = "[DAY ☀️]"
                 end
             end
 
