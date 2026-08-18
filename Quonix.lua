@@ -1,7 +1,6 @@
--- Services
+ -- Services
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local Lighting = game:GetService("Lighting")
 local player = Players.LocalPlayer
 
 -- Anti-AFK
@@ -63,11 +62,12 @@ HubTitle.TextSize = 16
 HubTitle.Font = Enum.Font.GothamBold
 HubTitle.TextXAlignment = Enum.TextXAlignment.Left
 
+-- Uhrzeit / Timer direkt neben dem Namen
 local ClockLabel = Instance.new("TextLabel", TopBar)
 ClockLabel.Size = UDim2.new(0, 140, 1, 0)
 ClockLabel.Position = UDim2.new(0.05, 65, 0, 0)
 ClockLabel.BackgroundTransparency = 1
-ClockLabel.Text = "[Scanning...]"
+ClockLabel.Text = os.date("%H:%M:%S")
 ClockLabel.TextColor3 = Color3.fromRGB(180, 120, 255)
 ClockLabel.TextSize = 13
 ClockLabel.Font = Enum.Font.GothamBold
@@ -447,72 +447,13 @@ StartStopBtn.MouseButton1Click:Connect(function()
 end)
 
 --------------------------------------------------------------------------------
--- GAME COUNTDOWN & NIGHT CHECK
+-- CLOCK LOOP (Aktualisiert die Uhrzeit sekündlich)
 --------------------------------------------------------------------------------
-local function getGameCountdownString()
-    local foundText = nil
-    pcall(function()
-        for _, gui in ipairs(player.PlayerGui:GetChildren()) do
-            if gui ~= ScreenGui then
-                for _, descendant in ipairs(gui:GetDescendants()) do
-                    if descendant:IsA("TextLabel") or descendant:IsA("TextButton") then
-                        local text = descendant.Text or ""
-                        if string.find(text, "m") and string.find(text, "s") then
-                            foundText = text
-                            break
-                        end
-                    end
-                end
-            end
-            if foundText then break end
-        end
-    end)
-    return foundText
-end
-
-local function checkIsNight()
-    local isNight = false
-    pcall(function()
-        for _, gui in ipairs(player.PlayerGui:GetChildren()) do
-            if gui ~= ScreenGui then
-                for _, descendant in ipairs(gui:GetDescendants()) do
-                    if descendant:IsA("TextLabel") or descendant:IsA("TextButton") then
-                        local textLower = string.lower(descendant.Text or "")
-                        if string.find(textLower, "🌙") or string.find(textLower, "mond") or string.find(textLower, "moon") or string.find(textLower, "night") then
-                            isNight = true
-                            break
-                        end
-                    end
-                end
-            end
-            if isNight then break end
-        end
-    end)
-    return isNight
-end
-
 task.spawn(function()
     while true do
-        task.wait(0.4)
+        task.wait(1)
         pcall(function()
-            local countdownStr = getGameCountdownString()
-            local nightActive = checkIsNight()
-
-            if countdownStr then
-                ClockLabel.Text = "[" .. countdownStr .. "]"
-            else
-                if nightActive then
-                    ClockLabel.Text = "[NIGHT 🌙]"
-                else
-                    ClockLabel.Text = "[DAY ☀️]"
-                end
-            end
-
-            if nightActive then
-                ClockLabel.TextColor3 = Color3.fromRGB(100, 150, 255)
-            else
-                ClockLabel.TextColor3 = Color3.fromRGB(255, 200, 50)
-            end
+            ClockLabel.Text = os.date("%H:%M:%S")
         end)
     end
 end)
@@ -607,16 +548,13 @@ local function walkToTarget(pos, shouldJump)
                 task.wait(0.05)
             end
             if (hrp.Position - pos).Magnitude > 3 then
-                humanoid:MoveTo(pos)
+                humanoid:MoveUpTo and humanoid:MoveTo(pos) or humanoid:MoveTo(pos)
             end
         end
     end)
 end
 
 task.spawn(function()
-    local nightEndedTick = 0
-    local wasNightBefore = false
-
     while true do
         task.wait(0.3)
         pcall(function()
@@ -624,116 +562,7 @@ task.spawn(function()
                 local char = player.Character
                 local hrp = char and char:FindFirstChild("HumanoidRootPart")
                 if hrp then
-                    local isNight = checkIsNight()
-                    if isNight then
-                        if not wasNightBefore then
-                            walkToTarget(nightSaveZonePosition, true)
-                            wasNightBefore = true
-                            nightEndedTick = 0
-                        else
-                            local activeEgg = nil
-                            for _, obj in ipairs(workspace:GetDescendants()) do
-                                if obj:IsA("BasePart") or obj:IsA("Model") then
-                                    local nameLower = string.lower(obj.Name)
-                                    if (string.find(nameLower, "secret") or string.find(nameLower, "eternal")) and string.find(nameLower, "egg") then
-                                        activeEgg = obj:IsA("Model") and obj.PrimaryPart or obj
-                                        break
-                                    end
-                                end
-                            end
-
-                            if activeEgg then
-                                local eggHolder = nil
-                                for _, otherPlayer in ipairs(Players:GetPlayers()) do
-                                    if otherPlayer ~= player and otherPlayer.Character then
-                                        local otherHrp = otherPlayer.Character:FindFirstChild("HumanoidRootPart")
-                                        if otherHrp and (otherHrp.Position - activeEgg.Position).Magnitude < 6 then
-                                            eggHolder = otherPlayer
-                                            break
-                                        end
-                                    end
-                                end
-
-                                if eggHolder and eggHolder.Character then
-                                    local holderHrp = eggHolder.Character:FindFirstChild("HumanoidRootPart")
-                                    if holderHrp then
-                                        hrp.CFrame = CFrame.new(hrp.Position, Vector3.new(holderHrp.Position.X, holderHrp.Position.Y, holderHrp.Position.Z))
-                                        walkToTarget(holderHrp.Position, false)
-                                        equipBat()
-                                        local tool = char:FindFirstChildOfClass("Tool")
-                                        if tool then tool:Activate() end
-                                    end
-                                else
-                                    if (hrp.Position - activeEgg.Position).Magnitude > 3 then
-                                        walkToTarget(activeEgg.Position, false)
-                                    else
-                                        task.wait(0.2)
-                                        walkToTarget(saveZonePosition, false)
-                                        if (hrp.Position - saveZonePosition).Magnitude < 5 then
-                                            local tool = char:FindFirstChildOfClass("Tool")
-                                            if tool then tool.Parent = player:FindFirstChildOfClass("Backpack") end
-                                        end
-                                    end
-                                end
-                            else
-                                walkToTarget(nightSaveZonePosition, false)
-                            end
-                        end
-                    else
-                        if wasNightBefore then
-                            if nightEndedTick == 0 then nightEndedTick = tick() end
-                            if tick() - nightEndedTick < 5 then
-                                walkToTarget(nightSaveZonePosition, false)
-                            else
-                                wasNightBefore = false
-                                nightEndedTick = 0
-                            end
-                        else
-                            local activeEgg = nil
-                            for _, obj in ipairs(workspace:GetDescendants()) do
-                                if obj:IsA("BasePart") or obj:IsA("Model") then
-                                    local nameLower = string.lower(obj.Name)
-                                    if (string.find(nameLower, "secret") or string.find(nameLower, "eternal")) and string.find(nameLower, "egg") then
-                                        activeEgg = obj:IsA("Model") and obj.PrimaryPart or obj
-                                        break
-                                    end
-                                end
-                            end
-
-                            if activeEgg then
-                                local eggHolder = nil
-                                for _, otherPlayer in ipairs(Players:GetPlayers()) do
-                                    if otherPlayer ~= player and otherPlayer.Character then
-                                        local otherHrp = otherPlayer.Character:FindFirstChild("HumanoidRootPart")
-                                        if otherHrp and (otherHrp.Position - activeEgg.Position).Magnitude < 6 then
-                                            eggHolder = otherPlayer
-                                            break
-                                        end
-                                    end
-                                end
-
-                                if eggHolder and eggHolder.Character then
-                                    local holderHrp = eggHolder.Character:FindFirstChild("HumanoidRootPart")
-                                    if holderHrp then
-                                        hrp.CFrame = CFrame.new(hrp.Position, Vector3.new(holderHrp.Position.X, holderHrp.Position.Y, holderHrp.Position.Z))
-                                        walkToTarget(holderHrp.Position, false)
-                                        equipBat()
-                                        local tool = char:FindFirstChildOfClass("Tool")
-                                        if tool then tool:Activate() end
-                                    end
-                                else
-                                    if (hrp.Position - activeEgg.Position).Magnitude > 3 then
-                                        walkToTarget(activeEgg.Position, false)
-                                    else
-                                        task.wait(0.2)
-                                        walkToTarget(saveZonePosition, false)
-                                    end
-                                end
-                            else
-                                walkToTarget(conveyorPosition, false)
-                            end
-                        end
-                    end
+                    walkToTarget(conveyorPosition, false)
                 end
             end
         end)
