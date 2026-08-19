@@ -3,7 +3,7 @@ local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
 local player = Players.LocalPlayer
 
-print("[AutoFarm] Bereichs-Modus gestartet...")
+print("[AutoFarm] Menschlicher Such-Modus gestartet...")
 
 -- GUI für Status und Rejoin-Button
 local screenGui = Instance.new("ScreenGui", player.PlayerGui)
@@ -23,7 +23,7 @@ corner.CornerRadius = UDim.new(0, 6)
 
 local statusLabel = Instance.new("TextLabel", frame)
 statusLabel.Size = UDim2.new(1, 0, 0, 45)
-statusLabel.Text = "Bereich markiert (10 Studs)"
+statusLabel.Text = "Gehe Bereich ab (10 Studs)"
 statusLabel.TextColor3 = Color3.fromRGB(0, 255, 128)
 statusLabel.TextSize = 13
 statusLabel.Font = Enum.Font.SourceSansBold
@@ -52,42 +52,46 @@ rejoinButton.MouseButton1Click:Connect(function()
     end
 end)
 
--- Hauptlogik für den Startpunkt und den 10-Studs-Bereich
+-- Menschliches Ablaufen im Radius
 task.spawn(function()
-    -- Warten, bis der Charakter da ist und stabil steht
     local char = player.Character or player.CharacterAdded:Wait()
     local rootPart = char:WaitForChild("HumanoidRootPart", 15)
+    local humanoid = char:WaitForChild("Humanoid", 15)
     
-    task.wait(2) -- Puffer für den Ladebildschirm
+    task.wait(2) -- Warten bis Spiel geladen ist
     
     local startPos = rootPart.Position
-    print("[AutoFarm] Startposition gespeichert: ", startPos)
 
-    -- Visuelle Markierung des 10-Studs-Bereichs auf dem Boden (Grünes transparentes Quadrat)
+    -- Visuelle Markierung des 10-Studs-Radius (Grünes Quadrat auf dem Boden)
     pcall(function()
         local marker = Instance.new("Part")
         marker.Name = "AreaMarker10Studs"
-        marker.Size = Vector3.new(20, 0.5, 20) -- 20x20 Studs = 10 Studs Radius in alle Richtungen
-        marker.Position = Vector3.new(startPos.X, startPos.Y - 2, startPos.Z) -- Knapp unter den Füßen
+        marker.Size = Vector3.new(20, 0.2, 20) -- 20x20 Studs Gesamtgröße = 10 Studs Radius
+        marker.Position = Vector3.new(startPos.X, startPos.Y - 2.5, startPos.Z)
         marker.Anchored = true
         marker.CanCollide = false
-        marker.Transparency = 0.6
+        marker.Transparency = 0.5
         marker.Color = Color3.fromRGB(0, 255, 0)
         marker.Material = Enum.Material.Neon
         marker.Parent = workspace
     end)
 
-    -- Zufällige Bewegung im Bereich (10 Studs Radius), damit du automatisch farmst/läufst
+    -- Menschliches Ablaufen mit fließenden Bewegungen
     while true do
-        task.wait(1.5)
+        task.wait(0.1)
         local currentCharacter = player.Character
         if currentCharacter and currentCharacter:FindFirstChild("Humanoid") and currentCharacter:FindFirstChild("HumanoidRootPart") then
-            -- Generiert zufällige Punkte im 10-Studs-Radius um den Startpunkt
-            local randomX = startPos.X + math.random(-10, 10)
-            local randomZ = startPos.Z + math.random(-10, 10)
-            local targetVector = Vector3.new(randomX, startPos.Y, randomZ)
+            local currentPos = currentCharacter.HumanoidRootPart.Position
             
-            currentCharacter.Humanoid:MoveTo(targetVector)
+            -- Wenn wir zu weit vom Startpunkt wegkommen (> 10 Studs), gehen wir zurück zur Mitte
+            local distanceFromStart = (Vector3.new(currentPos.X, startPos.Y, currentPos.Z) - startPos).Magnitude
+            
+            if distanceFromStart > 10 or math.random(1, 100) <= 5 then
+                -- Wähle einen zufälligen Punkt im 10-Studs-Bereich
+                local randomX = startPos.X + math.random(-9, 9)
+                local randomZ = startPos.Z + math.random(-9, 9)
+                currentCharacter.Humanoid:MoveTo(Vector3.new(randomX, startPos.Y, randomZ))
+            end
         end
     end
 end)
