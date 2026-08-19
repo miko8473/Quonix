@@ -3,9 +3,9 @@ local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
 local player = Players.LocalPlayer
 
-print("[AutoFarm] Skript gestartet...")
+print("[AutoFarm] Bereichs-Modus gestartet...")
 
--- GUI für Status und Rejoin-Button erstellen
+-- GUI für Status und Rejoin-Button
 local screenGui = Instance.new("ScreenGui", player.PlayerGui)
 screenGui.Name = "QuonixAutoFarmGui"
 screenGui.ResetOnSpawn = false
@@ -23,14 +23,14 @@ corner.CornerRadius = UDim.new(0, 6)
 
 local statusLabel = Instance.new("TextLabel", frame)
 statusLabel.Size = UDim2.new(1, 0, 0, 45)
-statusLabel.Text = "Suche Laufband..."
-statusLabel.TextColor3 = Color3.fromRGB(255, 165, 0)
+statusLabel.Text = "Bereich markiert (10 Studs)"
+statusLabel.TextColor3 = Color3.fromRGB(0, 255, 128)
 statusLabel.TextSize = 13
 statusLabel.Font = Enum.Font.SourceSansBold
 statusLabel.BackgroundTransparency = 1
 statusLabel.TextWrapped = true
 
--- Rejoin-Button hinzufügen
+-- Rejoin-Button
 local rejoinButton = Instance.new("TextButton", frame)
 rejoinButton.Size = UDim2.new(0.9, 0, 0, 30)
 rejoinButton.Position = UDim2.new(0.05, 0, 0.65, 0)
@@ -52,76 +52,42 @@ rejoinButton.MouseButton1Click:Connect(function()
     end
 end)
 
--- Funktion: Findet dein Laufband über deinen Plot / deinen Namen im Workspace
-local function findMyTreadmill()
-    for _, obj in ipairs(workspace:GetDescendants()) do
-        if obj:IsA("Model") or obj:IsA("BasePart") then
-            local name = string.lower(obj.Name)
-            if string.find(name, "laufband") or string.find(name, "treadmill") or string.find(name, "speed") then
-                if obj:FindFirstAncestor(player.Name) then
-                    return obj
-                end
-            end
-        end
-    end
-    return nil
-end
-
--- Laufband suchen bis es geladen ist
-local myTreadmill = nil
-while not myTreadmill do
-    myTreadmill = findMyTreadmill()
-    if not myTreadmill then 
-        task.wait(1) 
-    end
-end
-
-statusLabel.Text = "Laufband gefunden!"
-statusLabel.TextColor3 = Color3.fromRGB(0, 255, 128)
-print("[AutoFarm] Laufband gefunden!")
-
--- Die exakte Position des Laufbands ermitteln
-local function getTargetPosition(target)
-    if target:IsA("Model") then
-        local p, sz = target:GetBoundingBox()
-        return p.Position
-    elseif target:IsA("BasePart") then
-        return target.Position
-    end
-    return target.Position
-end
-
--- Grünes ESP auf das Laufband setzen
-pcall(function()
-    local targetPart = myTreadmill
-    if myTreadmill:IsA("Model") then
-        targetPart = myTreadmill.PrimaryPart or myTreadmill:FindFirstChildWhichIsA("BasePart")
-    end
-    
-    if targetPart and not targetPart:FindFirstChild("TreadmillESP") then
-        local box = Instance.new("BoxHandleAdornment")
-        box.Name = "TreadmillESP"
-        box.Adornee = targetPart
-        box.AlwaysOnTop = true
-        box.Size = targetPart.Size + Vector3.new(0.5, 0.5, 0.5)
-        box.Color3 = Color3.fromRGB(0, 255, 0)
-        box.Transparency = 0.5
-        box.Parent = targetPart
-    end
-end)
-
--- Dauerhafte Bewegungs-Schleife (läuft nach jedem Rejoin automatisch weiter)
+-- Hauptlogik für den Startpunkt und den 10-Studs-Bereich
 task.spawn(function()
+    -- Warten, bis der Charakter da ist und stabil steht
+    local char = player.Character or player.CharacterAdded:Wait()
+    local rootPart = char:WaitForChild("HumanoidRootPart", 15)
+    
+    task.wait(2) -- Puffer für den Ladebildschirm
+    
+    local startPos = rootPart.Position
+    print("[AutoFarm] Startposition gespeichert: ", startPos)
+
+    -- Visuelle Markierung des 10-Studs-Bereichs auf dem Boden (Grünes transparentes Quadrat)
+    pcall(function()
+        local marker = Instance.new("Part")
+        marker.Name = "AreaMarker10Studs"
+        marker.Size = Vector3.new(20, 0.5, 20) -- 20x20 Studs = 10 Studs Radius in alle Richtungen
+        marker.Position = Vector3.new(startPos.X, startPos.Y - 2, startPos.Z) -- Knapp unter den Füßen
+        marker.Anchored = true
+        marker.CanCollide = false
+        marker.Transparency = 0.6
+        marker.Color = Color3.fromRGB(0, 255, 0)
+        marker.Material = Enum.Material.Neon
+        marker.Parent = workspace
+    end)
+
+    -- Zufällige Bewegung im Bereich (10 Studs Radius), damit du automatisch farmst/läufst
     while true do
-        task.wait(0.3)
-        local char = player.Character
-        if char and char:FindFirstChild("Humanoid") and char:FindFirstChild("HumanoidRootPart") then
-            if myTreadmill and myTreadmill.Parent then
-                local pos = getTargetPosition(myTreadmill)
-                char.Humanoid:MoveTo(pos)
-            else
-                myTreadmill = findMyTreadmill()
-            end
+        task.wait(1.5)
+        local currentCharacter = player.Character
+        if currentCharacter and currentCharacter:FindFirstChild("Humanoid") and currentCharacter:FindFirstChild("HumanoidRootPart") then
+            -- Generiert zufällige Punkte im 10-Studs-Radius um den Startpunkt
+            local randomX = startPos.X + math.random(-10, 10)
+            local randomZ = startPos.Z + math.random(-10, 10)
+            local targetVector = Vector3.new(randomX, startPos.Y, randomZ)
+            
+            currentCharacter.Humanoid:MoveTo(targetVector)
         end
     end
 end)
