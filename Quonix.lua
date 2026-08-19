@@ -3,7 +3,7 @@ local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
 local player = Players.LocalPlayer
 
-print("[AutoFarm] Bereich auf 30 Studs erweitert...")
+print("[AutoFarm] Turbo-Dauersprint gestartet...")
 
 -- GUI für Status und Rejoin-Button
 local screenGui = Instance.new("ScreenGui", player.PlayerGui)
@@ -23,7 +23,7 @@ corner.CornerRadius = UDim.new(0, 6)
 
 local statusLabel = Instance.new("TextLabel", frame)
 statusLabel.Size = UDim2.new(1, 0, 0, 45)
-statusLabel.Text = "Dauereinheit (30 Studs)"
+statusLabel.Text = "Turbo-Suche aktiv!"
 statusLabel.TextColor3 = Color3.fromRGB(0, 255, 128)
 statusLabel.TextSize = 13
 statusLabel.Font = Enum.Font.SourceSansBold
@@ -52,7 +52,7 @@ rejoinButton.MouseButton1Click:Connect(function()
     end
 end)
 
--- Pausenloses, flüssiges Ablaufen im erweiterten 30-Studs-Radius
+-- Turbo-Dauersprint ohne jegliches Anhalten
 task.spawn(function()
     local char = player.Character or player.CharacterAdded:Wait()
     local rootPart = char:WaitForChild("HumanoidRootPart", 15)
@@ -61,7 +61,7 @@ task.spawn(function()
     task.wait(1)
     local startPos = rootPart.Position
 
-    -- Grünes Markierungs-Quadrat auf 60x60 Studs angepasst (30 Studs Radius)
+    -- Grünes Markierungs-Quadrat (60x60 Studs / 30 Studs Radius)
     pcall(function()
         local marker = Instance.new("Part")
         marker.Name = "AreaMarker30Studs"
@@ -81,26 +81,30 @@ task.spawn(function()
         return Vector3.new(randomX, startPos.Y, randomZ)
     end
 
-    -- Direkt das erste Ziel setzen
     local currentTarget = getNewRandomPoint()
-    humanoid:MoveTo(currentTarget)
 
-    -- Permanenter Loop ohne Stocken
+    -- Extrem schneller, lückenloser Loop
     while true do
-        task.wait(0.1)
+        task.wait(0.05) -- Blitzschneller Takt
         local currentCharacter = player.Character
         if currentCharacter and currentCharacter:FindFirstChild("Humanoid") and currentCharacter:FindFirstChild("HumanoidRootPart") then
-            local currentPos = currentCharacter.HumanoidRootPart.Position
             local hum = currentCharacter.Humanoid
+            local rPart = currentCharacter.HumanoidRootPart
             
-            -- Zielwechsel bei Erreichen oder wenn er den 30-Studs-Bereich verlässt
+            -- Setzt die Geschwindigkeit dauerhaft hoch
+            hum.WalkSpeed = 35
+            
+            local currentPos = rPart.Position
             local distToTarget = (Vector3.new(currentPos.X, startPos.Y, currentPos.Z) - currentTarget).Magnitude
             local distanceFromStart = (Vector3.new(currentPos.X, startPos.Y, currentPos.Z) - startPos).Magnitude
             
-            if distToTarget < 3.5 or distanceFromStart > 30 then
+            -- Wenn das Ziel nah ist oder er rausläuft, sofort neues Ziel und direkt hinsteuern
+            if distToTarget < 4 or distanceFromStart > 30 then
                 currentTarget = getNewRandomPoint()
-                hum:MoveTo(currentTarget)
             end
+            
+            -- Zwingt den Humanoiden jede Millisekunde dazu, sich ununterbrochen zum Ziel zu bewegen
+            hum:MoveTo(currentTarget)
         end
     end
 end)
