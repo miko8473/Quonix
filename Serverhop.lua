@@ -1,10 +1,9 @@
--- Services & Spieler
 local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
 local player = Players.LocalPlayer
 
--- GUI Farbe: BLAU (neues Update signalisiert)
-local GUI_COLOR = Color3.fromRGB(50, 100, 200)
+-- GUI Farbe: GRÜN (neues Update für Geschwindigkeit)
+local GUI_COLOR = Color3.fromRGB(50, 200, 50)
 
 local screenGui = Instance.new("ScreenGui", player.PlayerGui)
 screenGui.Name = "QuonixServerHop"
@@ -24,9 +23,7 @@ btn.Draggable = true
 Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
 
 btn.MouseButton1Click:Connect(function()
-    btn.Text = "Hoppe..."
-    -- Aggressiverer Ansatz: Teleportiert zum gleichen Ort, aber zwingt einen neuen Sitzplatz
-    local options = Instance.new("TeleportOptions")
-    options.ShouldSkipWaitingForServer = true
-    TeleportService:TeleportAsync(game.PlaceId, {player}, options)
+    btn.Text = "Hop!"
+    -- Brute-Force: Sofortiger Teleport ohne Verzögerung
+    TeleportService:Teleport(game.PlaceId, player)
 end)
