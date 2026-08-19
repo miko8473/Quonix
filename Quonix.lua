@@ -3,7 +3,7 @@ local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
 local player = Players.LocalPlayer
 
-print("[AutoFarm] Endlos-Lauf Modus gestartet...")
+print("[AutoFarm] Bereich auf 30 Studs erweitert...")
 
 -- GUI für Status und Rejoin-Button
 local screenGui = Instance.new("ScreenGui", player.PlayerGui)
@@ -23,7 +23,7 @@ corner.CornerRadius = UDim.new(0, 6)
 
 local statusLabel = Instance.new("TextLabel", frame)
 statusLabel.Size = UDim2.new(1, 0, 0, 45)
-statusLabel.Text = "Dauereinheit (15 Studs)"
+statusLabel.Text = "Dauereinheit (30 Studs)"
 statusLabel.TextColor3 = Color3.fromRGB(0, 255, 128)
 statusLabel.TextSize = 13
 statusLabel.Font = Enum.Font.SourceSansBold
@@ -52,7 +52,7 @@ rejoinButton.MouseButton1Click:Connect(function()
     end
 end)
 
--- Pausenloses, flüssiges Ablaufen
+-- Pausenloses, flüssiges Ablaufen im erweiterten 30-Studs-Radius
 task.spawn(function()
     local char = player.Character or player.CharacterAdded:Wait()
     local rootPart = char:WaitForChild("HumanoidRootPart", 15)
@@ -61,11 +61,11 @@ task.spawn(function()
     task.wait(1)
     local startPos = rootPart.Position
 
-    -- Grünes Markierungs-Quadrat (30x30 Studs)
+    -- Grünes Markierungs-Quadrat auf 60x60 Studs angepasst (30 Studs Radius)
     pcall(function()
         local marker = Instance.new("Part")
-        marker.Name = "AreaMarker15Studs"
-        marker.Size = Vector3.new(30, 0.2, 30)
+        marker.Name = "AreaMarker30Studs"
+        marker.Size = Vector3.new(60, 0.2, 60)
         marker.Position = Vector3.new(startPos.X, startPos.Y - 2.5, startPos.Z)
         marker.Anchored = true
         marker.CanCollide = false
@@ -76,8 +76,8 @@ task.spawn(function()
     end)
 
     local function getNewRandomPoint()
-        local randomX = startPos.X + math.random(-14, 14)
-        local randomZ = startPos.Z + math.random(-14, 14)
+        local randomX = startPos.X + math.random(-29, 29)
+        local randomZ = startPos.Z + math.random(-29, 29)
         return Vector3.new(randomX, startPos.Y, randomZ)
     end
 
@@ -93,11 +93,11 @@ task.spawn(function()
             local currentPos = currentCharacter.HumanoidRootPart.Position
             local hum = currentCharacter.Humanoid
             
-            -- Wenn das Ziel fast erreicht ist ODER der Charakter zu weit weg driftet (> 15 Studs), sofort neues Ziel
+            -- Zielwechsel bei Erreichen oder wenn er den 30-Studs-Bereich verlässt
             local distToTarget = (Vector3.new(currentPos.X, startPos.Y, currentPos.Z) - currentTarget).Magnitude
             local distanceFromStart = (Vector3.new(currentPos.X, startPos.Y, currentPos.Z) - startPos).Magnitude
             
-            if distToTarget < 3.5 or distanceFromStart > 15 then
+            if distToTarget < 3.5 or distanceFromStart > 30 then
                 currentTarget = getNewRandomPoint()
                 hum:MoveTo(currentTarget)
             end
