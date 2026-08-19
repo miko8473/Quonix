@@ -3,7 +3,7 @@ local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
 local player = Players.LocalPlayer
 
-print("[AutoFarm] Menschlicher Such-Modus gestartet...")
+print("[AutoFarm] Schneller Such-Modus (15 Studs) gestartet...")
 
 -- GUI für Status und Rejoin-Button
 local screenGui = Instance.new("ScreenGui", player.PlayerGui)
@@ -23,7 +23,7 @@ corner.CornerRadius = UDim.new(0, 6)
 
 local statusLabel = Instance.new("TextLabel", frame)
 statusLabel.Size = UDim2.new(1, 0, 0, 45)
-statusLabel.Text = "Gehe Bereich ab (10 Studs)"
+statusLabel.Text = "Flüssiger Lauf (15 Studs)"
 statusLabel.TextColor3 = Color3.fromRGB(0, 255, 128)
 statusLabel.TextSize = 13
 statusLabel.Font = Enum.Font.SourceSansBold
@@ -52,21 +52,20 @@ rejoinButton.MouseButton1Click:Connect(function()
     end
 end)
 
--- Menschliches Ablaufen im Radius
+-- Schnelles und flüssiges Ablaufen im 15-Studs-Radius
 task.spawn(function()
     local char = player.Character or player.CharacterAdded:Wait()
     local rootPart = char:WaitForChild("HumanoidRootPart", 15)
     local humanoid = char:WaitForChild("Humanoid", 15)
     
-    task.wait(2) -- Warten bis Spiel geladen ist
-    
+    task.wait(1)
     local startPos = rootPart.Position
 
-    -- Visuelle Markierung des 10-Studs-Radius (Grünes Quadrat auf dem Boden)
+    -- Grünes Markierungs-Quadrat (30x30 Studs)
     pcall(function()
         local marker = Instance.new("Part")
-        marker.Name = "AreaMarker10Studs"
-        marker.Size = Vector3.new(20, 0.2, 20) -- 20x20 Studs Gesamtgröße = 10 Studs Radius
+        marker.Name = "AreaMarker15Studs"
+        marker.Size = Vector3.new(30, 0.2, 30)
         marker.Position = Vector3.new(startPos.X, startPos.Y - 2.5, startPos.Z)
         marker.Anchored = true
         marker.CanCollide = false
@@ -76,22 +75,28 @@ task.spawn(function()
         marker.Parent = workspace
     end)
 
-    -- Menschliches Ablaufen mit fließenden Bewegungen
+    local targetVector = startPos
+
+    -- Flüssige Loop ohne Pausen
     while true do
-        task.wait(0.1)
         local currentCharacter = player.Character
         if currentCharacter and currentCharacter:FindFirstChild("Humanoid") and currentCharacter:FindFirstChild("HumanoidRootPart") then
             local currentPos = currentCharacter.HumanoidRootPart.Position
+            local hum = currentCharacter.Humanoid
             
-            -- Wenn wir zu weit vom Startpunkt wegkommen (> 10 Studs), gehen wir zurück zur Mitte
+            -- Berechne Abstand zum aktuellen Ziel oder zum Startpunkt, wenn zu weit weg
+            local distToTarget = (Vector3.new(currentPos.X, startPos.Y, currentPos.Z) - targetVector).Magnitude
             local distanceFromStart = (Vector3.new(currentPos.X, startPos.Y, currentPos.Z) - startPos).Magnitude
             
-            if distanceFromStart > 10 or math.random(1, 100) <= 5 then
-                -- Wähle einen zufälligen Punkt im 10-Studs-Bereich
-                local randomX = startPos.X + math.random(-9, 9)
-                local randomZ = startPos.Z + math.random(-9, 9)
-                currentCharacter.Humanoid:MoveTo(Vector3.new(randomX, startPos.Y, randomZ))
+            if distanceFromStart > 15 or distToTarget < 3 then
+                -- Neues Ziel direkt im 15-Studs-Bereich generieren
+                local randomX = startPos.X + math.random(-14, 14)
+                local randomZ = startPos.Z + math.random(-14, 14)
+                targetVector = Vector3.new(randomX, startPos.Y, randomZ)
+                hum:MoveTo(targetVector)
             end
         end
+        -- Extrem kurzer Takt für flüssige Bewegung ohne Stocken
+        task.wait(0.2)
     end
 end)
