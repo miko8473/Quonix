@@ -2,8 +2,8 @@ local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
 local player = Players.LocalPlayer
 
--- GUI Farbe: GRÜN (neues Update für Geschwindigkeit)
-local GUI_COLOR = Color3.fromRGB(50, 200, 50)
+-- GUI Farbe: ROT (neues Update: Anti-Same-Server-Methode)
+local GUI_COLOR = Color3.fromRGB(200, 50, 50)
 
 local screenGui = Instance.new("ScreenGui", player.PlayerGui)
 screenGui.Name = "QuonixServerHop"
@@ -23,7 +23,25 @@ btn.Draggable = true
 Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
 
 btn.MouseButton1Click:Connect(function()
-    btn.Text = "Hop!"
-    -- Brute-Force: Sofortiger Teleport ohne Verzögerung
+    btn.Text = "Blockiere..."
+    
+    -- Schnappt sich automatisch den ersten Spieler, der nicht du selbst bist
+    local targetPlayer = nil
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= player then
+            targetPlayer = p
+            break
+        end
+    end
+    
+    -- Wenn jemand auf dem Server ist, blockieren wir ihn per Roblox-Funktion
+    if targetPlayer then
+        pcall(function()
+            StarterGui:SetCore("PromptBlockPlayer", targetPlayer)
+        end)
+    end
+    
+    btn.Text = "Hoppe..."
+    -- Sofortiger Hop
     TeleportService:Teleport(game.PlaceId, player)
 end)
